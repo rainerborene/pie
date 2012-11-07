@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pie</title>
+    <meta charset="utf-8">
+    <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+    <script src="https://raw.github.com/DmitryBaranovskiy/raphael/master/raphael-min.js"></script>
+    <script src="pie.js"></script>
+    <script>
+      window.onload = function() {
+        var pie = new Pie('#container');
+        pie.font('18px Helvetica, sans-serif');
+        pie.attach();
+        pie.setVotes(8, 15);
+      };
+    </script>
+    <style>
+      body {
+        padding: 50px;
+        font-family: Helvetica, Arial, sans-serif;
+      }
+
+      .pie {
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div class="pie"></div>
+
+      <!-- Optionally -->
+      <!--
+        <p>
+          <strong>Yes:</strong> <span class="yes">0 votes</span><br/>
+          <strong>No:</strong> <span class="no">0 votes</span>
+        </p>
+      -->
+    </div>
+  </body>
+</html>
