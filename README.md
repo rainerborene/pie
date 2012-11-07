@@ -10,16 +10,16 @@ Pie with two segments.
 var pie = new Pie;
 document.body.appendChild(pie.el);
 
-pie.values(150, 100);
-pie.colors("#000", "#ccc");
+pie.colors("#58c23c", "#ef0d2b")
 pie.font("14px 'Helvetica Neue', sans-serif");
+pie.values(150, 100);
 ```
 
 ## API
 
 ### Pie#size(width, height)
 
-Set width and height attributes.
+Set width and height dimensions.
 
 ### Pie#colors(colors)
 
@@ -27,7 +27,7 @@ Set color of segments.
 
 ### Pie#background(color)
 
-Set background color of centered circle.
+Set `fill` color of centered circle.
 
 ### Pie#font(family)
 
