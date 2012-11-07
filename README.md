@@ -10,7 +10,7 @@ Pie with two segments.
 var pie = new Pie;
 document.body.appendChild(pie.el);
 
-pie.colors("#58c23c", "#ef0d2b")
+pie.colors("#58c23c", "#ef0d2b");
 pie.font("14px 'Helvetica Neue', sans-serif");
 pie.values(150, 100);
 ```

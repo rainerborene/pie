@@ -3,7 +3,6 @@
   <head>
     <title>Pie</title>
     <meta charset="utf-8">
-    <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
     <script src="https://raw.github.com/DmitryBaranovskiy/raphael/master/raphael-min.js"></script>
     <script src="../pie.js"></script>
     <script>
@@ -11,7 +10,7 @@
         var pie = new Pie;
         document.body.appendChild(pie.el);
 
-        pie.colors("#58c23c", "#ef0d2b")
+        pie.colors("#58c23c", "#ef0d2b");
         pie.font("14px 'Helvetica Neue', sans-serif");
         pie.values(150, 100);
       };
