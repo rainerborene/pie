@@ -2,30 +2,40 @@
 
 Pie with two segments.
 
-![js pie component](http://f.cl.ly/items/2F3H1i3S0Q3K0D0t2R3v/Screen%20Shot%202012-11-07%20at%2011.14.30%20AM.png)
+![js pie component](http://f.cl.ly/items/0E2e3c2n1O052n3J3h0a/Screen%20Shot%202012-11-07%20at%201.14.34%20PM.png)
 
 ## Example
 
 ```js
-var pie = new Pie('#canvas');
+var pie = new Pie;
+document.body.appendChild(pie.el);
 
-pie.attach();
-pie.setVotes(100, 50);
+pie.values(150, 100);
+pie.colors("#000", "#ccc");
+pie.font("14px 'Helvetica Neue', sans-serif");
 ```
 
 ## API
 
-### Pie#attach
+### Pie#size(width, height)
 
-Attach canvas to the container.
+Set width and height attributes.
+
+### Pie#colors(colors)
+
+Set color of segments.
+
+### Pie#background(color)
+
+Set background color of centered circle.
 
 ### Pie#font(family)
 
 Change the font to `family`.
 
-### Pie#setVotes(up, down)
+### Pie#values(up, down)
 
-Update positive and negative values and re-draw.
+Update values of segments and redraw.
 
 ## License
 

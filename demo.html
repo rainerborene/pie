@@ -8,34 +8,16 @@
     <script src="pie.js"></script>
     <script>
       window.onload = function() {
-        var pie = new Pie('#container');
-        pie.font('18px Helvetica, sans-serif');
-        pie.attach();
-        pie.setVotes(8, 15);
+        var pie = new Pie;
+        document.body.appendChild(pie.el);
+
+        pie.values(150, 100);
       };
     </script>
     <style>
-      body {
-        padding: 50px;
-        font-family: Helvetica, Arial, sans-serif;
-      }
-
-      .pie {
-        background-color: #fff;
-      }
+      body { padding: 50px; }
     </style>
   </head>
   <body>
-    <div id="container">
-      <div class="pie"></div>
-
-      <!-- Optionally -->
-      <!--
-        <p>
-          <strong>Yes:</strong> <span class="yes">0 votes</span><br/>
-          <strong>No:</strong> <span class="no">0 votes</span>
-        </p>
-      -->
-    </div>
   </body>
 </html>
