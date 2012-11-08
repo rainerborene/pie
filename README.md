@@ -22,9 +22,9 @@ pie.update(150, 100);
 
 Change the number of segments to `n`.
 
-### Pie#size(width, height)
+### Pie#size(n)
 
-Set width and height dimensions.
+Change the pie diameter to `n`, defaults to 137.
 
 ### Pie#colors(colors)
 

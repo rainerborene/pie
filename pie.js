@@ -26,17 +26,16 @@ Pie.prototype.segments = function(n){
 };
 
 /**
- * Set width and height dimensions.
+ * Change the pie diameter to `n`, defaults to 137.
  *
- * @param {Number} width
- * @param {Number} height
+ * @param {Number} n
  * @return {Pie}
  * @api public
  */
 
-Pie.prototype.size = function(width, height){
-  this._width = width;
-  this._height = height;
+Pie.prototype.size = function(n){
+  this._width = n;
+  this._height = n;
   return this;
 };
 
@@ -110,7 +109,7 @@ Pie.prototype.render = function(){
     this.paths.push(this.ctx.path().attr({ segment: this.segment(), fill: this._colors[i], "stroke-width": 0 }));
   }
 
-  this.circle = this.ctx.circle(this._width / 2, this._height / 2, Math.round(this.min() * 0.19));
+  this.circle = this.ctx.circle(this._width / 2, this._height / 2, Math.round(this._width * 0.19));
   this.circle.attr({ stroke: 0, fill: this._backgroundColor });
   this.text = this.ctx.text(this._width / 2, this._height / 2, "");
   this.text.attr({ font: this._font, fill: "#fff" });
@@ -128,19 +127,9 @@ Pie.prototype.render = function(){
  */
 
 Pie.prototype.segment = function(a1, a2){
-  return [this._width / 2, this._height / 2, this.min() / 2, a1 || 0, a2 || 0];
+  return [this._width / 2, this._height / 2, this._width / 2, a1 || 0, a2 || 0];
 };
 
-/**
- * Get the minimum value based on dimensions.
- *
- * @return {Number}
- * @api private
- */
-
-Pie.prototype.min = function(){
-  return Math.min(this._width, this._height);
-};
 
 /**
  * Animate segments and set text.
