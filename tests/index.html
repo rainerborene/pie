@@ -10,9 +10,12 @@
         var pie = new Pie;
         document.body.appendChild(pie.el);
 
+        pie.segments(2);
         pie.colors("#58c23c", "#ef0d2b");
         pie.font("14px 'Helvetica Neue', sans-serif");
-        pie.values(150, 100);
+        pie.update(750, 500);
+
+        this.pie = pie;
       };
     </script>
     <style>

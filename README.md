@@ -1,6 +1,6 @@
 # Pie
 
-Pie with two segments.
+Pie with flexible segments.
 
 ![js pie component](http://f.cl.ly/items/0E2e3c2n1O052n3J3h0a/Screen%20Shot%202012-11-07%20at%201.14.34%20PM.png)
 
@@ -10,12 +10,17 @@ Pie with two segments.
 var pie = new Pie;
 document.body.appendChild(pie.el);
 
+pie.segments(2);
 pie.colors("#58c23c", "#ef0d2b");
 pie.font("14px 'Helvetica Neue', sans-serif");
-pie.values(150, 100);
+pie.update(150, 100);
 ```
 
 ## API
+
+### Pie#segments(n)
+
+Change the number of segments to `n`.
 
 ### Pie#size(width, height)
 
@@ -27,15 +32,19 @@ Set color of segments.
 
 ### Pie#background(color)
 
-Set `fill` color of centered circle.
+Set `fill` color of the centered circle.
 
 ### Pie#font(family)
 
 Change the font to `family`.
 
-### Pie#values(up, down)
+### Pie#update(values)
 
-Update values of segments and redraw.
+Update values of segments and animate transition.
+
+### Pie#redraw
+
+Redraw `Pie`. Useful if you have made any styling changes.
 
 ## License
 

@@ -1,22 +1,32 @@
 /**
- * Initialize a new `Pie` chart.
+ * Initialize a new `Pie`.
  */
 
-var Pie = function() {
+function Pie() {
   this.el = document.createElement('div');
   this.el.className = 'pie';
 
-  this._backgroundColor = "#fff";
-  this._font = '11px "Helvetica Neue", sans-serif';
-  this._colors = ["#58c23c", "#ef0d2b"];
-  this._width = 137;
-  this._height = 137;
-
-  this.draw();
+  this.size(137, 137);
+  this.background("#fff");
+  this.font('11px "Helvetica Neue", sans-serif');
+  this.colors("#58c23c", "#ef0d2b");
 };
 
 /**
- * Set width and height of `Pie`.
+ * Change the number of segments to `n`.
+ *
+ * @param {Number} n
+ * @return {Pie}
+ * @api public
+ */
+
+Pie.prototype.segments = function(n){
+  this._segments = n;
+  return this;
+};
+
+/**
+ * Set width and height dimensions.
  *
  * @param {Number} width
  * @param {Number} height
@@ -24,12 +34,9 @@ var Pie = function() {
  * @api public
  */
 
-Pie.prototype.size = function(width, height) {
+Pie.prototype.size = function(width, height){
   this._width = width;
   this._height = height;
-  this.el.innerHTML = "";
-  this.draw();
-  this.redraw();
   return this;
 };
 
@@ -41,10 +48,8 @@ Pie.prototype.size = function(width, height) {
  * @api public
  */
 
-Pie.prototype.colors = function() {
-  this._colors = new Array(arguments[0], arguments[1]);
-  this.paths[0].attr("fill", this._colors[0]);
-  this.paths[1].attr("fill", this._colors[1]);
+Pie.prototype.colors = function(){
+  this._colors = arguments;
   return this;
 };
 
@@ -56,9 +61,8 @@ Pie.prototype.colors = function() {
  * @api public
  */
 
-Pie.prototype.background = function(color) {
+Pie.prototype.background = function(color){
   this._backgroundColor = color;
-  this.circle.attr("fill", color);
   return this;
 };
 
@@ -70,9 +74,8 @@ Pie.prototype.background = function(color) {
  * @api public
  */
 
-Pie.prototype.font = function(family) {
+Pie.prototype.font = function(family){
   this._font = family;
-  this.text.attr("font", family);
   return this;
 };
 
@@ -83,9 +86,10 @@ Pie.prototype.font = function(family) {
  * @api private
  */
 
-Pie.prototype.draw = function() {
-  this.canvas = Raphael(this.el, this._width, this._height);
-  this.canvas.customAttributes.segment = function(x, y, r, a1, a2) {
+Pie.prototype.render = function(){
+  this.el.innerHTML = '';
+  this.ctx = Raphael(this.el, this._width, this._height);
+  this.ctx.customAttributes.segment = function(x, y, r, a1, a2) {
     var flag = (a2 - a1) > 180,
     clr = (a2 - a1) / 360;
     a1 = (a1 % 360) * Math.PI / 180;
@@ -100,15 +104,15 @@ Pie.prototype.draw = function() {
     };
   };
 
-  this.paths = this.canvas.set();
-  this.paths.push(
-    this.canvas.path().attr({ segment: this.segment(), fill: this._colors[0], "stroke-width": 0 }),
-    this.canvas.path().attr({ segment: this.segment(), fill: this._colors[1], "stroke-width": 0 }));
+  this.paths = this.ctx.set();
 
-  this.circle = this.canvas.circle(this._width / 2, this._height / 2, Math.round(this.min() * 0.19));
+  for (var i = 0; i < this._segments; i++) {
+    this.paths.push(this.ctx.path().attr({ segment: this.segment(), fill: this._colors[i], "stroke-width": 0 }));
+  }
+
+  this.circle = this.ctx.circle(this._width / 2, this._height / 2, Math.round(this.min() * 0.19));
   this.circle.attr({ stroke: 0, fill: this._backgroundColor });
-
-  this.text = this.canvas.text(this._width / 2, this._height / 2, "");
+  this.text = this.ctx.text(this._width / 2, this._height / 2, "");
   this.text.attr({ font: this._font, fill: "#fff" });
 
   return this;
@@ -123,7 +127,7 @@ Pie.prototype.draw = function() {
  * @api private
  */
 
-Pie.prototype.segment = function(a1, a2) {
+Pie.prototype.segment = function(a1, a2){
   return [this._width / 2, this._height / 2, this.min() / 2, a1 || 0, a2 || 0];
 };
 
@@ -134,51 +138,77 @@ Pie.prototype.segment = function(a1, a2) {
  * @api private
  */
 
-Pie.prototype.min = function() {
+Pie.prototype.min = function(){
   return Math.min(this._width, this._height);
+};
+
+/**
+ * Animate segments and set text.
+ *
+ * @return {Pie}
+ * @api private
+ */
+
+Pie.prototype.animate = function(){
+  var start = 0
+    , val
+    , percentage
+    , color
+    , idx = 0;
+
+  if (this.el.childElementCount === 0) {
+    this.render();
+  }
+
+  for (var i = 0; i < this._segments; i++) {
+    val = 360 / this.total * this.values[i];
+    val = val == 360 ? 359.9 : val;
+    this.paths[i].animate({ segment: this.segment(start, start += val) }, 1000, "<>");
+    this.paths[i].angle = start - val / 2;
+
+    if (this.values[idx] < this.values[i]) {
+      idx = i;
+    }
+  }
+
+  percentage = this.values[idx] * 100 / this.total;
+  this.text.attr("text", parseInt(percentage) + "%");
+  this.text.attr("fill", this._colors[idx]);
+
+  return this;
 };
 
 /**
  * Redraw `Pie`.
  *
  * @return {Pie}
- * @api private
+ * @api public
  */
 
-Pie.prototype.redraw = function() {
-  var start = 0
-    , keys = ['up', 'down']
-    , val
-    , percentage
-    , color;
-
-  for (var i = 0; i < keys.length; i++) {
-    val = 360 / this.total * this[keys[i]];
-    val = val == 360 ? 359.9 : val;
-    this.paths[i].animate({ segment: this.segment(start, start += val) }, 1000, "<>");
-    this.paths[i].angle = start - val / 2;
-  }
-
-  percentage = (this.up > this.down ? this.up : this.down) * 100 / this.total;
-  color = (this.up > this.down ? this._colors[0] : this._colors[1]);
-  this.text.attr("text", parseInt(percentage) + "%");
-  this.text.attr("fill", color);
+Pie.prototype.redraw = function(){
+  this.render();
+  this.animate();
   return this;
 };
 
 /**
  * Update values of segments and redraw.
  *
- * @param {Number} up
- * @param {Number} down
+ * @param {Array} values
  * @return {Pie}
  * @api public
  */
 
-Pie.prototype.values = function(up, down) {
-  this.up = parseInt(up);
-  this.down = parseInt(down);
-  this.total = (this.up + this.down);
-  this.redraw();
+Pie.prototype.update = function(){
+  this.values = [];
+  this.total = 0;
+
+  for (var i = 0; i < this._segments; i++) {
+    this.values.push(parseInt(arguments[i]));
+    this.total += this.values[i];
+  }
+
+  this.animate();
+
   return this;
 };
