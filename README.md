@@ -11,7 +11,7 @@ var pie = new Pie;
 document.body.appendChild(pie.el);
 
 pie.segments(2);
-pie.colors("#58c23c", "#ef0d2b");
+pie.colors("#58c23c", "#ef0d2b", "#cfd4d8");
 pie.font("14px 'Helvetica Neue', sans-serif");
 pie.update(150, 100);
 ```
@@ -28,7 +28,7 @@ Change the pie diameter to `n`, defaults to 137.
 
 ### Pie#colors(colors)
 
-Set color of segments. Latest argument should be the default color.
+Set color of segments. The latest argument should be the default color.
 
 ### Pie#background(color)
 
