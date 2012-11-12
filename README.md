@@ -28,7 +28,7 @@ Change the pie diameter to `n`, defaults to 137.
 
 ### Pie#colors(colors)
 
-Set color of segments.
+Set color of segments. Latest argument should be the default color.
 
 ### Pie#background(color)
 
@@ -40,7 +40,7 @@ Change the font to `family`.
 
 ### Pie#update(values)
 
-Update values of segments and animate transition.
+Update values of segments and animate.
 
 ### Pie#redraw
 

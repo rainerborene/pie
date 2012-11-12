@@ -5,12 +5,11 @@
 function Pie() {
   this.el = document.createElement('div');
   this.el.className = 'pie';
-
   this.size(137, 137);
   this.background("#fff");
   this.font('11px "Helvetica Neue", sans-serif');
-  this.colors("#58c23c", "#ef0d2b");
-};
+  this.colors("#58c23c", "#ef0d2b", "#cfd4d8");
+}
 
 /**
  * Change the number of segments to `n`.
@@ -86,6 +85,8 @@ Pie.prototype.font = function(family){
  */
 
 Pie.prototype.render = function(){
+  var i;
+
   this.el.innerHTML = '';
   this.ctx = Raphael(this.el, this._width, this._height);
   this.ctx.customAttributes.segment = function(x, y, r, a1, a2) {
@@ -105,7 +106,7 @@ Pie.prototype.render = function(){
 
   this.paths = this.ctx.set();
 
-  for (var i = 0; i < this._segments; i++) {
+  for (i = 0; i < this._segments; i++) {
     this.paths.push(this.ctx.path().attr({ segment: this.segment(), fill: this._colors[i], "stroke-width": 0 }));
   }
 
@@ -139,29 +140,35 @@ Pie.prototype.segment = function(a1, a2){
  */
 
 Pie.prototype.animate = function(){
-  var start = 0
+  var default_color = this._colors[this._colors.length - 1]
+    , start = 0
+    , idx = 0
     , val
     , percentage
     , color
-    , idx = 0;
+    , i;
 
   if (this.el.childElementCount === 0) {
     this.render();
   }
 
-  for (var i = 0; i < this._segments; i++) {
+  for (i = 0; i < this._segments; i++) {
     val = 360 / this.total * this.values[i];
-    val = val == 360 ? 359.9 : val;
+    val = val === 360 ? 359.9 : val;
+    idx = this.values[idx] < this.values[i] ? i : idx;
+    this.paths[i].attr("fill", this._colors[i]);
     this.paths[i].animate({ segment: this.segment(start, start += val) }, 1000, "<>");
     this.paths[i].angle = start - val / 2;
 
-    if (this.values[idx] < this.values[i]) {
-      idx = i;
+    if (this.total === 0 && i === 0) {
+      idx = this._colors.length - 1;
+      this.paths[i].attr("fill", default_color);
+      this.paths[i].animate({ segment: this.segment(start, 359.9) }, 1000, "<>");
     }
   }
 
-  percentage = this.values[idx] * 100 / this.total;
-  this.text.attr("text", parseInt(percentage) + "%");
+  percentage = (this.values[idx] * 100 / this.total) || 0;
+  this.text.attr("text", parseInt(percentage, 10) + "%");
   this.text.attr("fill", this._colors[idx]);
 
   return this;
@@ -189,11 +196,13 @@ Pie.prototype.redraw = function(){
  */
 
 Pie.prototype.update = function(){
+  var i;
+
   this.values = [];
   this.total = 0;
 
-  for (var i = 0; i < this._segments; i++) {
-    this.values.push(parseInt(arguments[i]));
+  for (i = 0; i < this._segments; i++) {
+    this.values.push(parseInt(arguments[i], 10) || 0);
     this.total += this.values[i];
   }
 
