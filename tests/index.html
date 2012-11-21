@@ -6,12 +6,12 @@
     <script src="https://raw.github.com/DmitryBaranovskiy/raphael/master/raphael-min.js"></script>
     <script src="../pie.js"></script>
     <script>
-      window.onload = function() {
+      window.onload = function(){
         var pie = new Pie;
         document.body.appendChild(pie.el);
 
         pie.segments(2);
-        pie.colors("#58c23c", "#ef0d2b", "#cfd4d8");
+        pie.colors("#58c23c", "#ef0d2b").blank("#cfd4d8");
         pie.font("14px 'Helvetica Neue', sans-serif");
         pie.update(50, 25);
 

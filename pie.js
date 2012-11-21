@@ -6,9 +6,10 @@ function Pie() {
   this.el = document.createElement('div');
   this.el.className = 'pie';
   this.size(137, 137);
+  this.segments(2);
   this.background("#fff");
   this.font('11px "Helvetica Neue", sans-serif');
-  this.colors("#58c23c", "#ef0d2b", "#cfd4d8");
+  this.colors("#58c23c", "#ef0d2b").blank("#cfd4d8");
 }
 
 /**
@@ -20,7 +21,7 @@ function Pie() {
  */
 
 Pie.prototype.segments = function(n){
-  this._segments = n;
+  this._segments = parseInt(n, 10) + 1;
   return this;
 };
 
@@ -48,6 +49,19 @@ Pie.prototype.size = function(n){
 
 Pie.prototype.colors = function(){
   this._colors = arguments;
+  return this;
+};
+
+/**
+ * Set default color.
+ *
+ * @param {String} color
+ * @return {Pie}
+ * @api public
+ */
+
+Pie.prototype.blank = function(color){
+  this._colors[this._segments] = color;
   return this;
 };
 
@@ -140,12 +154,11 @@ Pie.prototype.segment = function(a1, a2){
  */
 
 Pie.prototype.animate = function(){
-  var default_color = this._colors[this._colors.length - 1]
+  var default_color = this._colors[this._segments]
     , start = 0
     , idx = 0
     , val
     , percentage
-    , color
     , i;
 
   if (this.el.childElementCount === 0) {
@@ -160,8 +173,8 @@ Pie.prototype.animate = function(){
     this.paths[i].animate({ segment: this.segment(start, start += val) }, 1000, "<>");
     this.paths[i].angle = start - val / 2;
 
-    if (this.total === 0 && i === 0) {
-      idx = this._colors.length - 1;
+    if (this.total === 0 && i+1 === this._segments) {
+      idx = this._segments;
       this.paths[i].attr("fill", default_color);
       this.paths[i].animate({ segment: this.segment(start, 359.9) }, 1000, "<>");
     }
