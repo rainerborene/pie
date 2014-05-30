@@ -3,19 +3,15 @@
   <head>
     <title>Pie</title>
     <meta charset="utf-8">
-    <script src="https://raw.github.com/DmitryBaranovskiy/raphael/master/raphael-min.js"></script>
     <script src="../pie.js"></script>
     <script>
+      var pie;
       window.onload = function(){
-        var pie = new Pie;
+        pie = new Pie;
         document.body.appendChild(pie.el);
 
-        pie.segments(2);
-        pie.colors("#58c23c", "#ef0d2b").blank("#cfd4d8");
-        pie.font("14px 'Helvetica Neue', sans-serif");
-        pie.update(50, 25);
-
-        this.pie = pie;
+        pie.data(32,22);
+        pie.animate();
       };
     </script>
     <style>

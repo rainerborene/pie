@@ -1,225 +1,117 @@
-/**
- * Initialize a new `Pie`.
- */
-
-function Pie() {
-  this.el = document.createElement('div');
+function Pie(){
+  this.el = document.createElement('canvas');
   this.el.className = 'pie';
-  this.size(137, 137);
-  this.segments(2);
-  this.background("#fff");
-  this.font('11px "Helvetica Neue", sans-serif');
-  this.colors("#58c23c", "#ef0d2b").blank("#cfd4d8");
+  this.size(120);
+  this.cutout(37);
+  this.fontSize(16);
+  this.colors('#58c23c', '#ef0d2b', '#cfd4d8');
+  this.ctx = this.el.getContext('2d');
+  this.angles = [];
 }
 
-/**
- * Change the number of segments to `n`.
- *
- * @param {Number} n
- * @return {Pie}
- * @api public
- */
-
-Pie.prototype.segments = function(n){
-  this._segments = parseInt(n, 10) + 1;
-  return this;
+Pie.prototype.fontSize = function(n){
+  this._fontSize = n;
 };
-
-/**
- * Change the pie diameter to `n`, defaults to 137.
- *
- * @param {Number} n
- * @return {Pie}
- * @api public
- */
 
 Pie.prototype.size = function(n){
-  this._width = n;
-  this._height = n;
+  this.el.width = n;
+  this.el.height = n;
+  this._size = n;
+  this.half = n / 2;
   return this;
 };
 
-/**
- * Set colors of segments.
- *
- * @param {Array} colors
- * @return {Pie}
- * @api public
- */
+Pie.prototype.cutout = function(percentage){
+  this.cutoutRadius = this.half * (percentage / 100);
+  return this;
+};
 
 Pie.prototype.colors = function(){
-  this._colors = arguments;
+  this._colors = Array.prototype.slice.call(arguments, 0);
   return this;
 };
 
-/**
- * Set default color.
- *
- * @param {String} color
- * @return {Pie}
- * @api public
- */
-
-Pie.prototype.blank = function(color){
-  this._colors[this._segments] = color;
-  return this;
+Pie.prototype.data = function(){
+  this._data = Array.prototype.slice.call(arguments, 0);
+  this.sum = this._data.reduce(function(previousValue, currentValue){
+    return previousValue + currentValue;
+  });
 };
 
-/**
- * Set background color of centered circle.
- *
- * @param {String} color
- * @return {Pie}
- * @api public
- */
-
-Pie.prototype.background = function(color){
-  this._backgroundColor = color;
-  return this;
+Pie.prototype.zero = function(){
+  return this.sum === 0;
 };
 
-/**
- * Set the font `family`.
- *
- * @param {String} family
- * @return {Pie}
- * @api public
- */
+Pie.prototype.easeInOut = function(n){
+  var q = 0.48 - n / 1.04,
+      Q = Math.sqrt(0.1734 + q * q),
+      x = Q - q,
+      X = Math.pow(Math.abs(x), 1 / 3) * (x < 0 ? -1 : 1),
+      y = -Q - q,
+      Y = Math.pow(Math.abs(y), 1 / 3) * (y < 0 ? -1 : 1),
+      t = X + Y + 0.5;
 
-Pie.prototype.font = function(family){
-  this._font = family;
-  return this;
+  return (1 - t) * 3 * t * t + t * t * t;
 };
 
-/**
- * Draw on `el`.
- *
- * @return {Pie}
- * @api private
- */
+Pie.prototype.animate = function(fromCurrent){
+  var frameAmount = 1 / 50
+    , animationAmount = 0;
 
-Pie.prototype.render = function(){
-  var i;
+  var loop = function(){
+    animationAmount += frameAmount;
 
-  this.el.innerHTML = '';
-  this.ctx = Raphael(this.el, this._width, this._height);
-  this.ctx.customAttributes.segment = function(x, y, r, a1, a2) {
-    var flag = (a2 - a1) > 180,
-    clr = (a2 - a1) / 360;
-    a1 = (a1 % 360) * Math.PI / 180;
-    a2 = (a2 % 360) * Math.PI / 180;
-    return {
-      path: [
-          ["M", x, y]
-        , ["l", r * Math.cos(a1), r * Math.sin(a1)]
-        , ["A", r, r, 0, +flag, 1, x + r * Math.cos(a2), y + r * Math.sin(a2)]
-        , ["z"]
-      ]
-    };
-  };
+    this.draw(this.easeInOut(animationAmount), fromCurrent);
 
-  this.paths = this.ctx.set();
-
-  for (i = 0; i < this._segments; i++) {
-    this.paths.push(this.ctx.path().attr({ segment: this.segment(), fill: this._colors[i], "stroke-width": 0 }));
-  }
-
-  this.circle = this.ctx.circle(this._width / 2, this._height / 2, Math.round(this._width * 0.19));
-  this.circle.attr({ stroke: 0, fill: this._backgroundColor });
-  this.text = this.ctx.text(this._width / 2, this._height / 2, "");
-  this.text.attr({ font: this._font, fill: "#fff" });
-
-  return this;
-};
-
-/**
- * Segment array.
- *
- * @param {Number} a1
- * @param {Number} a2
- * @return {Array}
- * @api private
- */
-
-Pie.prototype.segment = function(a1, a2){
-  return [this._width / 2, this._height / 2, this._width / 2, a1 || 0, a2 || 0];
-};
-
-
-/**
- * Animate segments and set text.
- *
- * @return {Pie}
- * @api private
- */
-
-Pie.prototype.animate = function(){
-  var default_color = this._colors[this._segments]
-    , start = 0
-    , idx = 0
-    , val
-    , percentage
-    , i;
-
-  if (this.el.childElementCount === 0) {
-    this.render();
-  }
-
-  for (i = 0; i < this._segments; i++) {
-    val = 360 / this.total * this.values[i];
-    val = val === 360 ? 359.9 : val;
-    idx = this.values[idx] < this.values[i] ? i : idx;
-    this.paths[i].attr("fill", this._colors[i]);
-    this.paths[i].animate({ segment: this.segment(start, start += val) }, 1000, "<>");
-    this.paths[i].angle = start - val / 2;
-
-    if (this.total === 0 && i+1 === this._segments) {
-      idx = this._segments;
-      this.paths[i].attr("fill", default_color);
-      this.paths[i].animate({ segment: this.segment(start, 359.9) }, 1000, "<>");
+    if (animationAmount <= 1){
+      requestAnimFrame(loop);
     }
+  }.bind(this);
+
+  requestAnimFrame(loop);
+};
+
+Pie.prototype.draw = function(rotateAnimation, fromCurrent){
+  var cumulativeAngle = -Math.PI/2
+    , maxValue = Math.max.apply(Math, this._data)
+    , colorIndex = this.zero() ? this._colors.length-1 : this._data.indexOf(maxValue)
+    , percentage = this.zero() ? 0 : Math.round(maxValue * 100 / this.sum);
+
+  // Clear the canvas, ready for the new frame
+  this.ctx.clearRect(0, 0, this._size, this._size);
+
+  for (var i = 0; i < this._data.length; i++){
+    if (this.zero() && i !== 0)
+      continue;
+
+    var value = (this._data[i] / this.sum);
+    var empty = this.zero() && i === 0;
+    var sliceAngle = rotateAnimation * (empty ? 1 : value) * (Math.PI * 2);
+    var sumAngle = cumulativeAngle + sliceAngle;
+
+    this.ctx.beginPath();
+    this.ctx.arc(this.half, this.half, this.half, cumulativeAngle, sumAngle);
+    this.ctx.arc(this.half, this.half, this.cutoutRadius, sumAngle, cumulativeAngle, true);
+    this.ctx.lineTo(this.half, this.half);
+    this.ctx.closePath();
+    this.ctx.fillStyle = this._colors[this.zero() ? this._colors.length : i];
+    this.ctx.fill();
+
+    cumulativeAngle += sliceAngle;
   }
 
-  percentage = (this.values[idx] * 100 / this.total) || 0;
-  this.text.attr("text", parseInt(percentage, 10) + "%");
-  this.text.attr("fill", this._colors[idx]);
-
-  return this;
+  this.ctx.font = 'bold ' + this._fontSize + 'px Georgia, serif';
+  this.ctx.fillStyle = this._colors[colorIndex];
+  this.ctx.textAlign = 'center';
+  this.ctx.textBaseline = 'middle';
+  this.ctx.fillText(percentage + '%', this.half, this.half);
 };
 
-/**
- * Redraw `Pie`.
- *
- * @return {Pie}
- * @api public
- */
-
-Pie.prototype.redraw = function(){
-  this.render();
-  this.animate();
-  return this;
-};
-
-/**
- * Update values of segments and redraw.
- *
- * @param {Array} values
- * @return {Pie}
- * @api public
- */
-
-Pie.prototype.update = function(){
-  var i;
-
-  this.values = [];
-  this.total = 0;
-
-  for (i = 0; i < this._segments; i++) {
-    this.values.push(parseInt(arguments[i], 10) || 0);
-    this.total += this.values[i];
-  }
-
-  this.animate();
-
-  return this;
-};
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (function(){
+  return window.requestAnimationFrame  ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    || function(callback){
+      window.setTimeout(callback, 1000 / 60);
+    };
+})();
